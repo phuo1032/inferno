@@ -21,14 +21,13 @@ function patch(target, funcName, runMixinFirst = false) {
 		? mixinFunc
 		: runMixinFirst === true
 			? function() {
-				mixinFunc.apply(this, arguments);
-				base.apply(this, arguments);
-			}
+					mixinFunc.apply(this, arguments);
+					base.apply(this, arguments);
+				}
 			: function() {
-				base.apply(this, arguments);
-				mixinFunc.apply(this, arguments);
-			}
-	;
+					base.apply(this, arguments);
+					mixinFunc.apply(this, arguments);
+				};
 
 	// MWE: ideally we freeze here to protect against accidental overwrites in component instances, see #195
 	// ...but that breaks react-hot-loader, see #231...
@@ -82,10 +81,11 @@ const reactiveMixin = {
 		}
 
 		// Generate friendly name for debugging
-		const initialName = this.displayName
-			|| this.name
-			|| (this.constructor && (this.constructor.displayName || this.constructor.name))
-			|| '<component>';
+		const initialName =
+			this.displayName ||
+			this.name ||
+			(this.constructor && (this.constructor.displayName || this.constructor.name)) ||
+			'<component>';
 		const rootNodeID = this._reactInternalInstance && this._reactInternalInstance._rootNodeID;
 
 		/**
@@ -103,7 +103,8 @@ const reactiveMixin = {
 			let valueHolder = this[propName];
 			const atom = new Atom('reactive ' + propName);
 			Object.defineProperty(this, propName, {
-				configurable: true, enumerable: true,
+				configurable: true,
+				enumerable: true,
 				get() {
 					atom.reportObserved();
 					return valueHolder;
@@ -117,7 +118,7 @@ const reactiveMixin = {
 					} else {
 						valueHolder = v;
 					}
-				}
+				},
 			});
 		}
 
@@ -194,7 +195,9 @@ const reactiveMixin = {
 
 	shouldComponentUpdate(nextProps, nextState) {
 		if (isUsingStaticRendering) {
-			console.warn('[mobx-react] It seems that a re-rendering of a React component is triggered while in static (server-side) mode. Please make sure components are rendered only once server-side.');
+			console.warn(
+				'[mobx-react] It seems that a re-rendering of a React component is triggered while in static (server-side) mode. Please make sure components are rendered only once server-side.',
+			);
 		}
 		// update on any state changes (as is the default)
 		if (this.state !== nextState) {
@@ -205,7 +208,7 @@ const reactiveMixin = {
 		// however, it is nicer if lifecycle events are triggered like usually,
 		// so we return true here if props are shallowly modified.
 		return isObjectShallowModified(this.props, nextProps);
-	}
+	},
 };
 
 /**
@@ -219,11 +222,13 @@ export function observer(arg1: any, arg2?: any): any {
 		// component needs stores
 		if (!warnedAboutObserverInjectDeprecation) {
 			warnedAboutObserverInjectDeprecation = true;
-			console.warn('Mobx observer: Using observer to inject stores is deprecated since 4.0. Use `@inject("store1", "store2") @observer ComponentClass` or `inject("store1", "store2")(observer(componentClass))` instead of `@observer(["store1", "store2"]) ComponentClass`');
+			console.warn(
+				'Mobx observer: Using observer to inject stores is deprecated since 4.0. Use `@inject("store1", "store2") @observer ComponentClass` or `inject("store1", "store2")(observer(componentClass))` instead of `@observer(["store1", "store2"]) ComponentClass`',
+			);
 		}
 		if (!arg2) {
 			// invoked as decorator
-			return (componentClass) => observer(arg1, componentClass);
+			return componentClass => observer(arg1, componentClass);
 		} else {
 			return inject.apply(null, arg1)(observer(arg2));
 		}
@@ -235,7 +240,9 @@ export function observer(arg1: any, arg2?: any): any {
 	}
 
 	if (componentClass.isMobxInjector === true) {
-		console.warn('Mobx observer: You are trying to use \'observer\' on a component that already has \'inject\'. Please apply \'observer\' before applying \'inject\'');
+		console.warn(
+			"Mobx observer: You are trying to use 'observer' on a component that already has 'inject'. Please apply 'observer' before applying 'inject'",
+		);
 	}
 
 	// Stateless function component:
@@ -243,16 +250,22 @@ export function observer(arg1: any, arg2?: any): any {
 	// wrap it to a react class automatically
 	if (
 		typeof componentClass === 'function' &&
-		(!componentClass.prototype || !componentClass.prototype.render) && !componentClass.isReactClass && !Component.isPrototypeOf(componentClass)
+		(!componentClass.prototype || !componentClass.prototype.render) &&
+		!componentClass.isReactClass &&
+		!Component.isPrototypeOf(componentClass)
 	) {
-		return observer(class extends Component<any, any> {
-			public static displayName = componentClass.displayName || componentClass.name;
-			// TODO: PropTypes
-			// public static contextTypes = componentClass.contextTypes;
-			// public static propTypes = componentClass.propTypes;
-			public static defaultProps = componentClass.defaultProps;
-			public render(props, state, context) { return componentClass(props, context); }
-		});
+		return observer(
+			class extends Component<any, any> {
+				public static displayName = componentClass.displayName || componentClass.name;
+				// TODO: PropTypes
+				// public static contextTypes = componentClass.contextTypes;
+				// public static propTypes = componentClass.propTypes;
+				public static defaultProps = componentClass.defaultProps;
+				public render(props, state, context) {
+					return componentClass(props, context);
+				}
+			},
+		);
 	}
 
 	const target = componentClass.prototype || componentClass;
@@ -263,11 +276,7 @@ export function observer(arg1: any, arg2?: any): any {
 
 function mixinLifecycleEvents(target) {
 	patch(target, 'componentWillMount', true);
-	[
-		'componentDidMount',
-		'componentWillUnmount',
-		'componentDidUpdate'
-	].forEach(function(funcName) {
+	['componentDidMount', 'componentWillUnmount', 'componentDidUpdate'].forEach(function(funcName) {
 		patch(target, funcName);
 	});
 	if (!target.shouldComponentUpdate) {

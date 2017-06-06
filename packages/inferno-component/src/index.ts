@@ -1,5 +1,5 @@
 // Make sure u use EMPTY_OBJ from 'inferno', otherwise it'll be a different reference
-import { EMPTY_OBJ, internal_DOMNodeMap, internal_patch, options, Props, VNode} from 'inferno';
+import { EMPTY_OBJ, internal_DOMNodeMap, internal_patch, options, Props, VNode } from 'inferno';
 import {
 	combineFrom,
 	ERROR_MSG,
@@ -8,7 +8,7 @@ import {
 	isNullOrUndef,
 	LifecycleClass,
 	NO_OP,
-	throwError
+	throwError,
 } from 'inferno-shared';
 import VNodeFlags from 'inferno-vnode-flags';
 
@@ -23,7 +23,8 @@ const handleInput = C.handleInput;
 let noOp = ERROR_MSG;
 
 if (process.env.NODE_ENV !== 'production') {
-	noOp = 'Inferno Error: Can only update a mounted or mounting component. This usually means you called setState() or forceUpdate() on an unmounted component. This is a no-op.';
+	noOp =
+		'Inferno Error: Can only update a mounted or mounting component. This usually means you called setState() or forceUpdate() on an unmounted component. This is a no-op.';
 }
 
 export interface ComponentLifecycle<P, S> {
@@ -46,7 +47,7 @@ function queueStateChanges<P, S>(component: Component<P, S>, newState: S, callba
 		component._pendingState = pending = newState;
 	} else {
 		for (const stateKey in newState) {
-			pending[ stateKey ] = newState[ stateKey ];
+			pending[stateKey] = newState[stateKey];
 		}
 	}
 
@@ -59,7 +60,7 @@ function queueStateChanges<P, S>(component: Component<P, S>, newState: S, callba
 			component.state = pending;
 		} else {
 			for (const key in pending) {
-				state[ key ] = pending[ key ];
+				state[key] = pending[key];
 			}
 		}
 
@@ -70,7 +71,14 @@ function queueStateChanges<P, S>(component: Component<P, S>, newState: S, callba
 	}
 }
 
-function createInstance(vNode: VNode, Component, props: Props, context: Object, isSVG: boolean, lifecycle: LifecycleClass) {
+function createInstance(
+	vNode: VNode,
+	Component,
+	props: Props,
+	context: Object,
+	isSVG: boolean,
+	lifecycle: LifecycleClass,
+) {
 	const instance = new Component(props, context) as Component<any, any>;
 	vNode.children = instance as any;
 	instance._blockSetState = false;
@@ -115,14 +123,23 @@ function createInstance(vNode: VNode, Component, props: Props, context: Object, 
 	return instance;
 }
 
-function updateComponent<P, S>(component: Component<P, S>, prevState: S, nextState: S, prevProps: P & Props, nextProps: P & Props, context: any, force: boolean, fromSetState: boolean): VNode|string {
+function updateComponent<P, S>(
+	component: Component<P, S>,
+	prevState: S,
+	nextState: S,
+	prevProps: P & Props,
+	nextProps: P & Props,
+	context: any,
+	force: boolean,
+	fromSetState: boolean,
+): VNode | string {
 	if (component._unmounted === true) {
 		if (process.env.NODE_ENV !== 'production') {
 			throwError(noOp);
 		}
 		throwError();
 	}
-	if ((prevProps !== nextProps || nextProps === EMPTY_OBJ) || prevState !== nextState || force) {
+	if (prevProps !== nextProps || nextProps === EMPTY_OBJ || prevState !== nextState || force) {
 		if (prevProps !== nextProps || nextProps === EMPTY_OBJ) {
 			if (!fromSetState && isFunction(component.componentWillReceiveProps)) {
 				// keep a copy of state before componentWillReceiveProps
@@ -149,7 +166,11 @@ function updateComponent<P, S>(component: Component<P, S>, prevState: S, nextSta
 		/* Update if scu is not defined, or it returns truthy value or force */
 		// When force is true we should not call scu
 		const hasSCU = isFunction(component.shouldComponentUpdate);
-		if (force || !hasSCU || (hasSCU && (component.shouldComponentUpdate as Function)(nextProps, nextState, context) !== false)) {
+		if (
+			force ||
+			!hasSCU ||
+			(hasSCU && (component.shouldComponentUpdate as Function)(nextProps, nextState, context) !== false)
+		) {
 			if (isFunction(component.componentWillUpdate)) {
 				component._blockSetState = true;
 				component.componentWillUpdate(nextProps, nextState, context);
@@ -179,7 +200,15 @@ function updateComponent<P, S>(component: Component<P, S>, prevState: S, nextSta
 	return NO_OP;
 }
 
-function patchComponent(lastVNode, nextVNode, parentDom, lifecycle: LifecycleClass, context, isSVG: boolean, isRecycling: boolean) {
+function patchComponent(
+	lastVNode,
+	nextVNode,
+	parentDom,
+	lifecycle: LifecycleClass,
+	context,
+	isSVG: boolean,
+	isRecycling: boolean,
+) {
 	const instance = lastVNode.children as Component<any, any>;
 	instance._vNode = nextVNode;
 	instance._updating = true;
@@ -187,7 +216,18 @@ function patchComponent(lastVNode, nextVNode, parentDom, lifecycle: LifecycleCla
 	if (instance._unmounted) {
 		return true;
 	} else {
-		nextVNode.dom  = handleUpdate(instance, instance.state, nextVNode.props || EMPTY_OBJ, context, false, false, isRecycling, isSVG, lifecycle, parentDom);
+		nextVNode.dom = handleUpdate(
+			instance,
+			instance.state,
+			nextVNode.props || EMPTY_OBJ,
+			context,
+			false,
+			false,
+			isRecycling,
+			isSVG,
+			lifecycle,
+			parentDom,
+		);
 		nextVNode.children = instance;
 	}
 	instance._updating = false;
@@ -211,14 +251,34 @@ function updateParentComponentVNodes(vNode: VNode, dom: Element) {
 	}
 }
 
-function handleUpdate(component, nextState, nextProps, context, force: boolean, fromSetState: boolean, isRecycling: boolean, isSVG: boolean, lifeCycle, parentDom) {
+function handleUpdate(
+	component,
+	nextState,
+	nextProps,
+	context,
+	force: boolean,
+	fromSetState: boolean,
+	isRecycling: boolean,
+	isSVG: boolean,
+	lifeCycle,
+	parentDom,
+) {
 	let nextInput;
 	const hasComponentDidUpdateIsFunction = isFunction(component.componentDidUpdate);
 	// When component has componentDidUpdate hook, we need to clone lastState or will be modified by reference during update
 	const prevState = hasComponentDidUpdateIsFunction ? combineFrom(nextState, null) : component.state;
 	const lastInput = component._lastInput as VNode;
 	const prevProps = component.props;
-	const renderOutput = updateComponent(component, prevState, nextState, prevProps, nextProps, context, force, fromSetState);
+	const renderOutput = updateComponent(
+		component,
+		prevState,
+		nextState,
+		prevProps,
+		nextProps,
+		context,
+		force,
+		fromSetState,
+	);
 	const vNode = component._vNode as VNode;
 
 	// debugger;
@@ -268,7 +328,7 @@ function handleUpdate(component, nextState, nextProps, context, force: boolean, 
 	}
 
 	component._lastInput = nextInput as VNode;
-	const dom = vNode.dom = (nextInput as VNode).dom as Element;
+	const dom = (vNode.dom = (nextInput as VNode).dom as Element);
 
 	if (options.findDOMNodeEnabled) {
 		internal_DOMNodeMap.set(component, (nextInput as VNode).dom);
@@ -299,7 +359,8 @@ function applyState<P, S>(component: Component<P, S>, force: boolean, callback?:
 				false,
 				component._isSVG,
 				component._lifecycle,
-				lastInput.dom && lastInput.dom.parentNode) || (lastInput.dom = component._vNode.dom)
+				lastInput.dom && lastInput.dom.parentNode,
+			) || (lastInput.dom = component._vNode.dom),
 		);
 	} else {
 		component.state = component._pendingState as S;
@@ -330,7 +391,7 @@ function flushQueue() {
 		for (let i = 0; i < length; i++) {
 			const component = componentFlushQueue[i];
 
-			applyState(component, false, (component.__FCB !== null ? loopCallbacks : undefined));
+			applyState(component, false, component.__FCB !== null ? loopCallbacks : undefined);
 			component.__FP = false; // Flush no longer pending for this component
 		}
 		componentFlushQueue.length = 0;
@@ -369,24 +430,24 @@ function queueStateChange(component, force, callback) {
 
 export default class Component<P, S> implements ComponentLifecycle<P, S> {
 	public static defaultProps: {};
-	public state: S|null = null;
+	public state: S | null = null;
 	public props: P & Props;
 	public context: any;
 	public _blockRender = false;
 	public _blockSetState = true;
 	public _pendingSetState = false;
-	public _pendingState: S|null = null;
+	public _pendingState: S | null = null;
 	public _lastInput: any = null;
 	public _vNode: VNode;
 	public _unmounted: boolean = false;
 	public _lifecycle: LifecycleClass;
-	public _childContext: object|null = null;
+	public _childContext: object | null = null;
 	public _isSVG = false;
 	public _updating: boolean = true;
 	public _updateComponent: Function; // TODO: Remove
 
 	public __FP: boolean = false; // Flush Pending
-	public __FCB: Function[]|null = null; // Flush callbacks for this component
+	public __FCB: Function[] | null = null; // Flush callbacks for this component
 
 	constructor(props?: P, context?: any) {
 		/** @type {object} */
@@ -422,7 +483,7 @@ export default class Component<P, S> implements ComponentLifecycle<P, S> {
 		queueStateChange(this, true, callback);
 	}
 
-	public setState(newState: S|Function, callback?: Function) {
+	public setState(newState: S | Function, callback?: Function) {
 		if (this._unmounted) {
 			return;
 		}

@@ -8,7 +8,7 @@ function find(val) {
 	return {
 		text() {
 			return node.textContent;
-		}
+		},
 	};
 }
 
@@ -16,7 +16,7 @@ export function mounter(input) {
 	render(input, this);
 
 	return {
-		find: find.bind(this)
+		find: find.bind(this),
 	};
 }
 
@@ -33,6 +33,6 @@ export const t = {
 	fail(e) {
 		assert.fail(e);
 	},
-	end() {} // Does nothing...
+	end() {}, // Does nothing...
 };
 /* eslint-enable no-invalid-this */

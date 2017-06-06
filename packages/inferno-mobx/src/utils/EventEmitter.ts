@@ -1,4 +1,3 @@
-
 export class EventEmitter {
 	public listeners: Function[] = [];
 

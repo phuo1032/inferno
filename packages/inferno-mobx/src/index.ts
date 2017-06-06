@@ -3,15 +3,7 @@ import { Observer, observer, useStaticRendering } from './observer';
 import { Provider } from './Provider';
 import { EventEmitter } from './utils/EventEmitter';
 
-export {
-	EventEmitter,
-	Observer,
-	Provider,
-	inject,
-	observer,
-	EventEmitter as renderReporter,
-	useStaticRendering
-};
+export { EventEmitter, Observer, Provider, inject, observer, EventEmitter as renderReporter, useStaticRendering };
 
 export default {
 	EventEmitter,
@@ -20,5 +12,5 @@ export default {
 	inject,
 	observer,
 	renderReporter: EventEmitter,
-	useStaticRendering
+	useStaticRendering,
 };

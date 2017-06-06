@@ -9,27 +9,31 @@ describe('react-mobx port: inject based context', () => {
 	let container = null,
 		mount = null;
 
-	beforeEach(function () {
+	beforeEach(function() {
 		container = document.createElement('div');
 		container.style.display = 'none';
 		mount = mounter.bind(container);
 		document.body.appendChild(container);
 	});
 
-	afterEach(function () {
+	afterEach(function() {
 		render(null, container);
 		document.body.removeChild(container);
 	});
 
 	it('basic context', () => {
-		const C = inject('foo')(observer(createClass({
-			render() {
-				return <div>context:{ this.props.foo }</div>;
-			}
-		})));
+		const C = inject('foo')(
+			observer(
+				createClass({
+					render() {
+						return <div>context:{this.props.foo}</div>;
+					},
+				}),
+			),
+		);
 		const B = () => <C />;
 		const A = () =>
-			<Provider foo='bar'>
+			<Provider foo="bar">
 				<B />
 			</Provider>;
 		const wrapper = mount(<A />);
@@ -38,17 +42,19 @@ describe('react-mobx port: inject based context', () => {
 	});
 
 	it('props override context', () => {
-		const C = inject('foo')(createClass({
-			render() {
-				return <div>context:{ this.props.foo }</div>;
-			}
-		}));
-		const B = () => <C foo={ 42 } />;
+		const C = inject('foo')(
+			createClass({
+				render() {
+					return <div>context:{this.props.foo}</div>;
+				},
+			}),
+		);
+		const B = () => <C foo={42} />;
 		const A = createClass({
 			render: () =>
-				<Provider foo='bar'>
+				<Provider foo="bar">
 					<B />
-				</Provider>
+				</Provider>,
 		});
 		const wrapper = mount(<A />);
 		t.equal(wrapper.find('div').text(), 'context:42');
@@ -56,15 +62,19 @@ describe('react-mobx port: inject based context', () => {
 	});
 
 	it('overriding stores is supported', () => {
-		const C = inject('foo', 'bar')(observer(createClass({
-			render() {
-				return <div>context:{ this.props.foo }{ this.props.bar }</div>;
-			}
-		})));
+		const C = inject('foo', 'bar')(
+			observer(
+				createClass({
+					render() {
+						return <div>context:{this.props.foo}{this.props.bar}</div>;
+					},
+				}),
+			),
+		);
 		const B = () => <C />;
 		const A = createClass({
 			render: () =>
-				<Provider foo='bar' bar={1337}>
+				<Provider foo="bar" bar={1337}>
 					<div>
 						<span>
 							<B />
@@ -75,7 +85,7 @@ describe('react-mobx port: inject based context', () => {
 							</Provider>
 						</section>
 					</div>
-				</Provider>
+				</Provider>,
 		});
 		const wrapper = mount(<A />);
 		t.equal(wrapper.find('span').text(), 'context:bar1337');
@@ -84,29 +94,37 @@ describe('react-mobx port: inject based context', () => {
 	});
 
 	it('store should be available', () => {
-		const C = inject('foo')(observer(createClass({
-			render() {
-				return <div>context:{ this.props.foo }</div>;
-			}
-		})));
+		const C = inject('foo')(
+			observer(
+				createClass({
+					render() {
+						return <div>context:{this.props.foo}</div>;
+					},
+				}),
+			),
+		);
 		const B = () => <C />;
 		const A = createClass({
 			render: () =>
 				<Provider baz={42}>
 					<B />
-				</Provider>
+				</Provider>,
 		});
 		t.throws(() => mount(<A />), /Store 'foo' is not available! Make sure it is provided by some Provider/);
 		t.end();
 	});
 
 	it('store is not required if prop is available', () => {
-		const C = inject('foo')(observer(createClass({
-			render() {
-				return <div>context:{ this.props.foo }</div>;
-			}
-		})));
-		const B = () => <C foo='bar'/>;
+		const C = inject('foo')(
+			observer(
+				createClass({
+					render() {
+						return <div>context:{this.props.foo}</div>;
+					},
+				}),
+			),
+		);
+		const B = () => <C foo="bar" />;
 		const wrapper = mount(<B />);
 		t.equal(wrapper.find('div').text(), 'context:bar');
 		t.end();
@@ -114,40 +132,51 @@ describe('react-mobx port: inject based context', () => {
 
 	it('inject merges (and overrides) props', () => {
 		// t.plan(1);
-		const C = inject(() => ({ a: 1 }))(observer(createClass({
-			render() {
-				t.deepEqual(this.props, { a: 1, b: 2 });
-				return null;
-			}
-		})));
-		const B = () => <C a={ 2 } b={ 2 } />;
+		const C = inject(() => ({ a: 1 }))(
+			observer(
+				createClass({
+					render() {
+						t.deepEqual(this.props, { a: 1, b: 2 });
+						return null;
+					},
+				}),
+			),
+		);
+		const B = () => <C a={2} b={2} />;
 		mount(<B />);
 	});
 
 	it('warning is printed when changing stores', () => {
 		let msg;
 		const baseWarn = console.warn;
-		console.warn = m => msg = m;
+		console.warn = m => (msg = m);
 		const a = mobx.observable(3);
-		const C = observer(['foo'], createClass({
-			render() {
-				return <div>context:{ this.props.foo }</div>;
-			}
-		}));
-		const B = observer(createClass({
-			render: () => <C />
-		}));
-		const A = observer(createClass({
-			render: () =>
-				<section>
-					<span>
-						{ a.get() }
-					</span>
-					<Provider foo={ a.get() }>
-						<B />
-					</Provider>
-				</section>
-		}));
+		const C = observer(
+			['foo'],
+			createClass({
+				render() {
+					return <div>context:{this.props.foo}</div>;
+				},
+			}),
+		);
+		const B = observer(
+			createClass({
+				render: () => <C />,
+			}),
+		);
+		const A = observer(
+			createClass({
+				render: () =>
+					<section>
+						<span>
+							{a.get()}
+						</span>
+						<Provider foo={a.get()}>
+							<B />
+						</Provider>
+					</section>,
+			}),
+		);
 		const wrapper = mount(<A />);
 
 		t.equal(wrapper.find('span').text(), '3');
@@ -158,7 +187,10 @@ describe('react-mobx port: inject based context', () => {
 		t.equal(wrapper.find('span').text(), '42');
 		t.equal(wrapper.find('div').text(), 'context:3');
 
-		t.equal(msg, 'MobX Provider: Provided store "foo" has changed. Please avoid replacing stores as the change might not propagate to all children');
+		t.equal(
+			msg,
+			'MobX Provider: Provided store "foo" has changed. Please avoid replacing stores as the change might not propagate to all children',
+		);
 		console.warn = baseWarn;
 		t.end();
 	});
@@ -170,21 +202,25 @@ describe('react-mobx port: inject based context', () => {
 			t.deepEqual(props, { baz: 42 });
 			return {
 				zoom: stores.foo,
-				baz: props.baz * 2
+				baz: props.baz * 2,
 			};
-		})(observer(createClass({
-			render() {
-				return <div>context:{ this.props.zoom }{ this.props.baz }</div>;
-			}
-		})));
+		})(
+			observer(
+				createClass({
+					render() {
+						return <div>context:{this.props.zoom}{this.props.baz}</div>;
+					},
+				}),
+			),
+		);
 		const B = createClass({
-			render: () => <C baz={ 42 } />
+			render: () => <C baz={42} />,
 		});
 		const A = () =>
-			<Provider foo='bar'>
+			<Provider foo="bar">
 				<B />
 			</Provider>;
-		const wrapper = mount(<A/>);
+		const wrapper = mount(<A />);
 		t.equal(wrapper.find('div').text(), 'context:bar84');
 		t.end();
 	});
@@ -194,7 +230,7 @@ describe('react-mobx port: inject based context', () => {
 			render() {
 				this.testField = 1;
 				return null;
-			}
+			},
 			// propTypes: {
 			// 	x: PropTypes.object
 			// }
@@ -209,7 +245,7 @@ describe('react-mobx port: inject based context', () => {
 		t.equal(C.bla2, B.bla2);
 		// t.deepEqual(Object.keys(C.wrappedComponent.propTypes), ['x']);
 
-		const injector = render(<C booh={ 42 } />, container);
+		const injector = render(<C booh={42} />, container);
 		t.equal(injector.wrappedInstance.testField, 1);
 		t.end();
 	});
@@ -218,19 +254,21 @@ describe('react-mobx port: inject based context', () => {
 		// const msg = [];
 		// const baseWarn = console.warn;
 		// console.warn = m => msg.push(m);
-		const C = inject(['foo'])(createClass({
-			displayName: 'C',
-			render() {
-				return <div>context:{ this.props.foo }</div>;
-			}
-		}));
+		const C = inject(['foo'])(
+			createClass({
+				displayName: 'C',
+				render() {
+					return <div>context:{this.props.foo}</div>;
+				},
+			}),
+		);
 		// C.propTypes = {};
 		C.defaultProps = {};
 		// C.contextTypes = {};
 
 		const B = () => <C />;
 		const A = () =>
-			<Provider foo='bar'>
+			<Provider foo="bar">
 				<B />
 			</Provider>;
 		mount(<A />);
@@ -245,14 +283,16 @@ describe('react-mobx port: inject based context', () => {
 		const baseError = console.error;
 		// console.error = m => msg.push(m);
 
-		const C = inject(['foo'])(createClass({
-			displayName: 'C',
-			render() {
-				t.equal(this.props.y, 3);
-				t.equal(this.props.x, undefined);
-				return null;
-			}
-		}));
+		const C = inject(['foo'])(
+			createClass({
+				displayName: 'C',
+				render() {
+					t.equal(this.props.y, 3);
+					t.equal(this.props.x, undefined);
+					return null;
+				},
+			}),
+		);
 		// C.propTypes = {
 		// 	x: PropTypes.func.isRequired,
 		// 	z: PropTypes.string.isRequired
@@ -261,11 +301,11 @@ describe('react-mobx port: inject based context', () => {
 		// 	a: PropTypes.func.isRequired
 		// };
 		C.defaultProps = {
-			y: 3
+			y: 3,
 		};
-		const B = () => <C z='test' />;
+		const B = () => <C z="test" />;
 		const A = () =>
-			<Provider foo='bar'>
+			<Provider foo="bar">
 				<B />
 			</Provider>;
 		mount(<A />);
@@ -281,10 +321,12 @@ describe('react-mobx port: inject based context', () => {
 		// const baseWarn = console.warn;
 		// console.warn = m => msg = m;
 
-		const C = inject(['foo'])(createClass({
-			displayName: 'C',
-			render: () => <div>context:{ this.props.foo }</div>
-		}));
+		const C = inject(['foo'])(
+			createClass({
+				displayName: 'C',
+				render: () => <div>context:{this.props.foo}</div>,
+			}),
+		);
 		// C.propTypes = {};
 		//
 		// t.equal(msg.length, 0);
@@ -296,10 +338,12 @@ describe('react-mobx port: inject based context', () => {
 		// let msg = [];
 		// const baseWarn = console.warn;
 		// console.warn = m => msg = m;
-		const C = inject(['foo'])(createClass({
-			displayName: 'C',
-			render: () => <div>context:{ this.props.foo }</div>
-		}));
+		const C = inject(['foo'])(
+			createClass({
+				displayName: 'C',
+				render: () => <div>context:{this.props.foo}</div>,
+			}),
+		);
 		// C.wrappedComponent.propTypes = {};
 
 		// t.equal(msg.length, 0);
@@ -310,10 +354,10 @@ describe('react-mobx port: inject based context', () => {
 	it('using a custom injector is reactive', () => {
 		const user = mobx.observable({ name: 'Noa' });
 		const mapper = stores => ({ name: stores.user.name });
-		const DisplayName = props => <h1>{ props.name }</h1>;
+		const DisplayName = props => <h1>{props.name}</h1>;
 		const User = inject(mapper)(DisplayName);
 		const App = () =>
-			<Provider user={ user }>
+			<Provider user={user}>
 				<User />
 			</Provider>;
 		const wrapper = mount(<App />);
@@ -325,7 +369,7 @@ describe('react-mobx port: inject based context', () => {
 		t.end();
 	});
 
-	it('using a custom injector is not too reactive', (done) => {
+	it('using a custom injector is not too reactive', done => {
 		const testRoot = document.createElement('div');
 		document.body.appendChild(testRoot);
 
@@ -334,7 +378,7 @@ describe('react-mobx port: inject based context', () => {
 		let injectRender = 0;
 
 		function connect() {
-			return (component) => inject.apply(this, arguments)(observer(component));
+			return component => inject.apply(this, arguments)(observer(component));
 		}
 
 		class State {
@@ -343,9 +387,9 @@ describe('react-mobx port: inject based context', () => {
 				return this.highlighted === item;
 			}
 
-			@action highlight = (item) => {
+			@action highlight = item => {
 				this.highlighted = item;
-			}
+			};
 		}
 
 		const items = observable([
@@ -354,52 +398,55 @@ describe('react-mobx port: inject based context', () => {
 			{ title: 'ItemC' },
 			{ title: 'ItemD' },
 			{ title: 'ItemE' },
-			{ title: 'ItemF' }
+			{ title: 'ItemF' },
 		]);
 
 		const state = new State();
 
 		class ListComponent extends InfernoComponent {
-
 			render() {
 				listRender++;
 				const { items } = this.props;
 
-				return <ul>{
-					items.map((item) => <ItemComponent key={item.title} item={item}/>)
-				}</ul>;
+				return <ul>{items.map(item => <ItemComponent key={item.title} item={item} />)}</ul>;
 			}
 		}
 
 		@connect(({ state }, { item }) => {
 			injectRender++;
 			if (injectRender > 6) {
-								// debugger;
+				// debugger;
 			}
-			return ({
-								// Using
-								// highlighted: expr(() => state.isHighlighted(item)) // seems to fix the problem
+			return {
+				// Using
+				// highlighted: expr(() => state.isHighlighted(item)) // seems to fix the problem
 				highlighted: state.isHighlighted(item),
-				highlight: state.highlight
-			});
+				highlight: state.highlight,
+			};
 		})
 		class ItemComponent extends InfernoComponent {
 			highlight = () => {
 				const { item, highlight } = this.props;
 				highlight(item);
-			}
+			};
 
 			render() {
 				itemRender++;
 				const { highlighted, item } = this.props;
-				return <li className={'hl_' + item.title} onClick={this.highlight}>{ item.title } { highlighted ? '(highlighted)' : '' } </li>;
+				return (
+					<li className={'hl_' + item.title} onClick={this.highlight}>
+						{item.title} {highlighted ? '(highlighted)' : ''}
+						{' '}
+					</li>
+				);
 			}
 		}
 		render(
 			<Provider state={state}>
-				<ListComponent items={items}/>
+				<ListComponent items={items} />
 			</Provider>,
-			testRoot, () => {
+			testRoot,
+			() => {
 				t.equal(listRender, 1);
 				t.equal(injectRender, 6);
 				t.equal(itemRender, 6);
@@ -421,7 +468,7 @@ describe('react-mobx port: inject based context', () => {
 						done();
 					}, 20);
 				}, 20);
-			}
+			},
 		);
 	});
 

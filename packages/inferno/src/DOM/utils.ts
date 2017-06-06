@@ -14,7 +14,15 @@ if (process.env.NODE_ENV !== 'production') {
 	Object.freeze(EMPTY_OBJ);
 }
 
-export function replaceLastChildAndUnmount(lastInput, nextInput, parentDom, lifecycle: LifecycleClass, context: Object, isSVG: boolean, isRecycling: boolean) {
+export function replaceLastChildAndUnmount(
+	lastInput,
+	nextInput,
+	parentDom,
+	lifecycle: LifecycleClass,
+	context: Object,
+	isSVG: boolean,
+	isRecycling: boolean,
+) {
 	replaceVNode(parentDom, mount(nextInput, null, lifecycle, context, isSVG), lastInput, lifecycle, isRecycling);
 }
 
@@ -32,7 +40,9 @@ export function handleComponentInput(input, parentVNode: VNode) {
 		out = createTextVNode(input, null);
 	} else if (isArray(input)) {
 		if (process.env.NODE_ENV !== 'production') {
-			throwError('a valid Inferno VNode (or null) must be returned from a component render. You may have returned an array or an invalid object.');
+			throwError(
+				'a valid Inferno VNode (or null) must be returned from a component render. You may have returned an array or an invalid object.',
+			);
 		}
 		throwError();
 	} else {
@@ -85,7 +95,15 @@ export function documentCreateElement(tag, isSVG: boolean): Element {
 	}
 }
 
-export function replaceWithNewNode(lastNode, nextNode, parentDom, lifecycle: LifecycleClass, context: Object, isSVG: boolean, isRecycling: boolean) {
+export function replaceWithNewNode(
+	lastNode,
+	nextNode,
+	parentDom,
+	lifecycle: LifecycleClass,
+	context: Object,
+	isSVG: boolean,
+	isRecycling: boolean,
+) {
 	unmount(lastNode, null, lifecycle, false, isRecycling);
 	const dom = mount(nextNode, null, lifecycle, context, isSVG);
 
@@ -122,6 +140,12 @@ export function removeChildren(dom: Element | null, children, lifecycle: Lifecyc
 }
 
 export function isKeyed(lastChildren: VNode[], nextChildren: VNode[]): boolean {
-	return nextChildren.length > 0 && !isNullOrUndef(nextChildren[0]) && !isNullOrUndef(nextChildren[0].key)
-		&& lastChildren.length > 0 && !isNullOrUndef(lastChildren[0]) && !isNullOrUndef(lastChildren[0].key);
+	return (
+		nextChildren.length > 0 &&
+		!isNullOrUndef(nextChildren[0]) &&
+		!isNullOrUndef(nextChildren[0].key) &&
+		lastChildren.length > 0 &&
+		!isNullOrUndef(lastChildren[0]) &&
+		!isNullOrUndef(lastChildren[0].key)
+	);
 }

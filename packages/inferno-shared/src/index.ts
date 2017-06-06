@@ -5,7 +5,7 @@ export const ERROR_MSG = 'a runtime error occured! Use Inferno in development en
 export const isBrowser = !!(typeof window !== 'undefined' && window.document);
 
 export function toArray(children): any[] {
-	return isArray(children) ? children : (children ? [children] : children);
+	return isArray(children) ? children : children ? [children] : children;
 }
 
 // this is MUCH faster than .constructor === Array and instanceof Array
@@ -62,7 +62,7 @@ export function throwError(message?: string) {
 	if (!message) {
 		message = ERROR_MSG;
 	}
-	throw new Error(`Inferno Error: ${ message }`);
+	throw new Error(`Inferno Error: ${message}`);
 }
 
 export function warning(message: string) {
@@ -106,7 +106,7 @@ Lifecycle.prototype.trigger = function trigger() {
 
 	let listener;
 	// We need to remove current listener from array when calling it, because more listeners might be added
-	while (listener = listeners.shift()) {
+	while ((listener = listeners.shift())) {
 		listener();
 	}
 };

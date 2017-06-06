@@ -7,20 +7,23 @@ import { observer } from './observer';
  * Store Injection
  */
 function createStoreInjector(grabStoresFn, component, injectNames?): any {
-	let displayName = 'inject-' + (component.displayName || component.name || (component.constructor && component.constructor.name) || 'Unknown');
+	let displayName =
+		'inject-' +
+		(component.displayName || component.name || (component.constructor && component.constructor.name) || 'Unknown');
 	if (injectNames) {
 		displayName += '-with-' + injectNames;
 	}
 
-	class Injector extends Component<any, any>  {
-
+	class Injector extends Component<any, any> {
 		public wrappedInstance = null;
 		public static wrappedComponent = component;
 
 		public static displayName = displayName;
 		public static isMobxInjector: boolean = true;
 
-		public storeRef = (instance) => { this.wrappedInstance = instance; };
+		public storeRef = instance => {
+			this.wrappedInstance = instance;
+		};
 
 		public render(props, state, context) {
 			// Optimization: it might be more efficient to apply the mapper function *outside* the render method
@@ -56,7 +59,9 @@ function grabStoresByName(storeNames) {
 			}
 
 			if (!(storeName in baseStores)) {
-				throw new Error('MobX observer: Store "' + storeName + '" is not available! Make sure it is provided by some Provider');
+				throw new Error(
+					'MobX observer: Store "' + storeName + '" is not available! Make sure it is provided by some Provider',
+				);
 			}
 
 			nextProps[storeName] = baseStores[storeName];
@@ -71,7 +76,7 @@ function grabStoresByName(storeNames) {
  * or a function that manually maps the available stores from the context to props:
  * storesToProps(mobxStores, props, context) => newProps
  */
-export function inject(arg: any/* fn(stores, nextProps) or ...storeNames */) {
+export function inject(arg: any /* fn(stores, nextProps) or ...storeNames */) {
 	let grabStoresFn;
 	if (typeof arg === 'function') {
 		grabStoresFn = arg;

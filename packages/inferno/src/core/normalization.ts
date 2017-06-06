@@ -7,7 +7,7 @@ import {
 	isString,
 	isStringOrNumber,
 	isUndefined,
-	warning
+	warning,
 } from 'inferno-shared';
 import VNodeFlags from 'inferno-vnode-flags';
 import { createTextVNode, directClone, InfernoChildren, isVNode, Props, VNode } from './VNodes';
@@ -20,9 +20,9 @@ function applyKey(key: string, vNode: VNode) {
 
 function applyKeyIfMissing(key: string | number, vNode: VNode): VNode {
 	if (isNumber(key)) {
-		key = `.${ key }`;
+		key = `.${key}`;
 	}
-	if (isNull(vNode.key) || vNode.key[ 0 ] === '.') {
+	if (isNull(vNode.key) || vNode.key[0] === '.') {
 		return applyKey(key as string, vNode);
 	}
 	return vNode;
@@ -36,10 +36,10 @@ function applyKeyPrefix(key: string, vNode: VNode): VNode {
 
 function _normalizeVNodes(nodes: any[], result: VNode[], index: number, currentKey) {
 	for (const len = nodes.length; index < len; index++) {
-		let n = nodes[ index ];
+		let n = nodes[index];
 
 		if (!isInvalid(n)) {
-			const key = `${ currentKey }.${ index }`;
+			const key = `${currentKey}.${index}`;
 
 			if (isStringOrNumber(n)) {
 				// String
@@ -52,7 +52,7 @@ function _normalizeVNodes(nodes: any[], result: VNode[], index: number, currentK
 			}
 
 			// vNode
-			const emptyKey = isNull(n.key) || n.key[ 0 ] === '.';
+			const emptyKey = isNull(n.key) || n.key[0] === '.';
 
 			if (emptyKey || n.dom) {
 				n = directClone(n);
@@ -75,14 +75,14 @@ export function normalizeVNodes(nodes: any[]): VNode[] {
 	// if it comes back again, we need to clone it, as people are using it
 	// in an immutable way
 	// tslint:disable
-	if (nodes[ '$' ] === true) {
+	if (nodes['$'] === true) {
 		nodes = nodes.slice();
 	} else {
-		nodes[ '$' ] = true;
+		nodes['$'] = true;
 	}
 	// tslint:enable
 	for (let i = 0, len = nodes.length; i < len; i++) {
-		const n = nodes[ i ];
+		const n = nodes[i];
 
 		if (isStringOrNumber(n)) {
 			if (!newNodes) {
@@ -104,7 +104,7 @@ export function normalizeVNodes(nodes: any[]): VNode[] {
 		}
 	}
 
-	return newNodes || nodes as VNode[];
+	return newNodes || (nodes as VNode[]);
 }
 
 function normalizeChildren(children) {
@@ -112,7 +112,7 @@ function normalizeChildren(children) {
 		return children;
 	} else if (isArray(children)) {
 		return normalizeVNodes(children as any[]);
-	} else if (/* must be vNode */children.dom !== null) {
+	} else if (/* must be vNode */ children.dom !== null) {
 		return directClone(children as VNode);
 	}
 	return children;
@@ -158,10 +158,10 @@ let validateChildren: Function = function() {};
 if (process.env.NODE_ENV !== 'production') {
 	validateChildren = function validateChildren(vNode: VNode, children) {
 		if (vNode.flags & VNodeFlags.InputElement) {
-			throw new Error('Failed to set children, input elements can\'t have children.');
+			throw new Error("Failed to set children, input elements can't have children.");
 		}
 		if (vNode.flags & VNodeFlags.MediaElement) {
-			throw new Error('Failed to set children, media elements can\'t have children.');
+			throw new Error("Failed to set children, media elements can't have children.");
 		}
 		if (vNode.flags === 0 || vNode.flags & VNodeFlags.Void) {
 			throw new Error(`Failed to set children, Void elements can\'t have children.`);
@@ -185,8 +185,8 @@ export function normalize(vNode: VNode): void {
 				props = vNode.props = defaultProps; // Create new object if only defaultProps given
 			} else {
 				for (const prop in defaultProps) {
-					if (isUndefined(props[ prop ])) {
-						props[ prop ] = defaultProps[ prop ];
+					if (isUndefined(props[prop])) {
+						props[prop] = defaultProps[prop];
 					}
 				}
 			}
@@ -218,7 +218,6 @@ export function normalize(vNode: VNode): void {
 	}
 
 	if (process.env.NODE_ENV !== 'production') {
-
 		// This code will be stripped out from production CODE
 		// It helps users to track errors in their applications.
 
@@ -230,7 +229,10 @@ export function normalize(vNode: VNode): void {
 				const hasDuplicate = keyValues.indexOf(item) !== idx;
 
 				if (hasDuplicate) {
-					warning('Inferno normalisation(...): Encountered two children with same key, all keys must be unique within its siblings. Duplicated key is:' + item);
+					warning(
+						'Inferno normalisation(...): Encountered two children with same key, all keys must be unique within its siblings. Duplicated key is:' +
+							item,
+					);
 				}
 
 				return hasDuplicate;

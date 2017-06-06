@@ -11,7 +11,7 @@ export class Pools {
 export const componentPools = new Map<Function | null, Pools>();
 export const elementPools = new Map<string | null, Pools>();
 
-function recycle(tagPools: Map<any, Pools>, vNode): VNode|undefined {
+function recycle(tagPools: Map<any, Pools>, vNode): VNode | undefined {
 	const pools = tagPools.get(vNode.type);
 
 	if (!isUndefined(pools)) {
@@ -47,7 +47,7 @@ export function recycleComponent(vNode: VNode, lifecycle: LifecycleClass, contex
 			context,
 			isSVG,
 			(flags & VNodeFlags.ComponentClass) > 0,
-			true
+			true,
 		);
 
 		if (!failed) {
