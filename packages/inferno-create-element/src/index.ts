@@ -43,7 +43,7 @@ export default function createElement<T>(type: string | Function | Component<any
 			newProps = {} as T & Props;
 
 			for (const prop in props) {
-				if (prop === 'className' || prop === 'class') {
+				if (!props.isCompat && (prop === 'className' || prop === 'class')) {
 					className = props[ prop ];
 				} else if (prop === 'key') {
 					key = props.key;

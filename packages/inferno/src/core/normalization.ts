@@ -116,7 +116,9 @@ function normalizeProps(vNode: VNode, props: Props, children: InfernoChildren) {
 		}
 		if (!isNullOrUndef(props.className)) {
 			vNode.className = props.className;
-			delete props.className;
+			if (!props.isCompat) {
+				delete props.className;
+			}
 		}
 	}
 	if (props.ref) {
@@ -127,6 +129,7 @@ function normalizeProps(vNode: VNode, props: Props, children: InfernoChildren) {
 		vNode.key = props.key;
 		delete props.key;
 	}
+	delete props.isCompat;
 }
 
 export function getFlagsForElementVnode(type: string): number {

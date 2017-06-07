@@ -123,6 +123,7 @@ function normalizeProps(name: string, props: Props | any) {
 			delete props[ prop ];
 		}
 	}
+	props.isCompat = true;
 }
 
 // we need to add persist() to Event (as React has it for synthetic events)
